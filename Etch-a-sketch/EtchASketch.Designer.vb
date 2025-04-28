@@ -228,7 +228,7 @@ Partial Class EtchASketch
         'AboutToolStripMenuItem1
         '
         Me.AboutToolStripMenuItem1.Name = "AboutToolStripMenuItem1"
-        Me.AboutToolStripMenuItem1.Size = New System.Drawing.Size(133, 26)
+        Me.AboutToolStripMenuItem1.Size = New System.Drawing.Size(224, 26)
         Me.AboutToolStripMenuItem1.Text = "About"
         '
         'EtchASketch

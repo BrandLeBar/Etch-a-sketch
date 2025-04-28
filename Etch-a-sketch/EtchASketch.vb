@@ -78,7 +78,9 @@ Public Class EtchASketch
     ''' </summary>
     Sub DrawWaveforms()
         Dim g As Graphics = DrawBox.CreateGraphics
-        Dim pen As New Pen(SelectColor(), 3)
+        Dim penBlue As New Pen(Color.Blue, 3)
+        Dim penRed As New Pen(Color.Red, 3)
+        Dim penYellow As New Pen(Color.Yellow, 3)
         Dim ymax As Integer = CInt(DrawBox.Height / 2)
         Dim oldX, oldY, newY As Integer
         Dim yOffset As Integer = CInt(DrawBox.Height / 2)
@@ -90,7 +92,7 @@ Public Class EtchASketch
 
         For x = 0 To DrawBox.Width
             newY = CInt(ymax * Math.Sin((Math.PI / 180) * (x * degreesPerPoint))) + yOffset
-            g.DrawLine(pen, oldX, oldY, x, newY)
+            g.DrawLine(penRed, oldX, oldY, x, newY)
             oldX = x
             oldY = newY
         Next
@@ -100,7 +102,7 @@ Public Class EtchASketch
 
         For x = 0 To DrawBox.Width
             newY = CInt(ymax * Math.Cos((Math.PI / 180) * (x * degreesPerPoint))) + yOffset
-            g.DrawLine(pen, oldX, oldY, x, newY)
+            g.DrawLine(penBlue, oldX, oldY, x, newY)
             oldX = x
             oldY = newY
         Next
@@ -110,7 +112,7 @@ Public Class EtchASketch
 
         For x = 0 To DrawBox.Width
             newY = CInt(ymax * Math.Tan((Math.PI / 180) * (x * degreesPerPoint))) + yOffset
-            g.DrawLine(pen, oldX, oldY, x, newY)
+            g.DrawLine(penYellow, oldX, oldY, x, newY)
             oldX = x
             oldY = newY
         Next
@@ -181,4 +183,8 @@ Public Class EtchASketch
         Return _selectColor
     End Function
 
+    Private Sub AboutToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem1.Click, AboutToolStripMenuItem.Click
+        Me.Hide()
+        AboutForm.Show()
+    End Sub
 End Class
