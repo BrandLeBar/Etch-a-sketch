@@ -1,16 +1,14 @@
-﻿'Brandon Barrera
-'RCET 0226 
-'Spring 2025
-'Etch-a-sketch
-'https://github.com/BrandLeBar/Etch-a-sketch.git
-
+﻿
 Option Compare Text
 Option Explicit On
 Option Strict On
 
+Imports System.ComponentModel
+Imports System.IO.Ports
 Imports System.Threading.Thread
 
 Public Class EtchASketch
+
     'Buttons //////////////////////////////////////////////////////////////////////////////////////
     Private Sub ClearButton_Click(sender As Object, e As EventArgs) Handles ClearButton.Click, ClearMenuItem.Click, ClearMenuItem1.Click
         Dim g As Graphics = DrawBox.CreateGraphics
@@ -52,6 +50,15 @@ Public Class EtchASketch
         g.Dispose()
     End Sub
 
+    Sub DrawWithPots(oldX As Integer, oldY As Integer, currentX As Integer, currentY As Integer)
+        Dim g As Graphics = DrawBox.CreateGraphics
+        Dim pen As New Pen(SelectColor(), 3)
+
+        g.DrawLine(pen, oldX, oldY, currentX, currentY)
+
+        g.Dispose()
+    End Sub
+
     ''' <summary>
     ''' This handels the mouse button click events
     ''' </summary>
@@ -60,17 +67,19 @@ Public Class EtchASketch
     Private Sub GraphicExamplesForm_MouseMove(sender As Object, e As MouseEventArgs) Handles DrawBox.MouseMove, DrawBox.MouseDown
         Static oldX, oldY As Integer
 
-        Select Case e.Button.ToString
-            Case "Left"
-                DrawWithMouse(oldX, oldY, e.X, e.Y)
-            Case "Right"
+        If NormalRadioButton.Checked Then
+            Select Case e.Button.ToString
+                Case "Left"
+                    DrawWithMouse(oldX, oldY, e.X, e.Y)
+                Case "Right"
                 'opens option menu
-            Case "Middle"
-                SelectColor(False)
-        End Select
+                Case "Middle"
+                    SelectColor(False)
+            End Select
+            oldX = e.X
+            oldY = e.Y
+        End If
 
-        oldX = e.X
-        oldY = e.Y
     End Sub
 
     ''' <summary>
@@ -183,8 +192,141 @@ Public Class EtchASketch
         Return _selectColor
     End Function
 
+    Function Connect() As SerialPort
+        Dim lePort As New SerialPort
+        lePort.BaudRate = 115200 'Q@ Board Default
+        lePort.Parity = IO.Ports.Parity.None
+        lePort.StopBits = IO.Ports.StopBits.One
+        lePort.DataBits = 8
+        lePort.PortName = GetPorts() 'This will change often
+        Return lePort
+    End Function
+
+    Function GetPorts() As String
+        Dim ports() = SerialPort.GetPortNames()
+        Dim test As Boolean = False
+
+        For Each port In ports
+            test = True
+            Console.WriteLine($"Current active port: {port}")
+            Return port
+        Next
+
+        If test = False Then
+            Console.WriteLine("Bro Has No Ports lol")
+        End If
+        Return Nothing
+    End Function
+
+    Function Read() As List(Of Byte)
+        Dim result As New List(Of Byte)
+        Do Until result.Count >= 5
+            Write()
+            Write()
+            Write()
+            Dim data(SerialPort1.BytesToRead) As Byte
+
+            SerialPort1.Read(data, 0, data.Count)
+
+            For i = 0 To UBound(data)
+
+                result.Add(data(i))
+
+            Next
+        Loop
+
+        Try
+            Console.WriteLine()
+            For i = 0 To 3
+                Select Case i
+                    Case 0
+                        Console.WriteLine($"Upper Bit AN1: {result.Item(i)}")
+                    Case 1
+                        Console.WriteLine($"Lower Bit AN1: {result.Item(i)}")
+                    Case 2
+                        Console.WriteLine($"Upper Bit AN2: {result.Item(i)}")
+                    Case 3
+                        Console.WriteLine($"Lower Bit AN2: {result.Item(i)}")
+                End Select
+            Next
+            Console.WriteLine()
+        Catch ex As Exception
+            MsgBox(ErrorToString)
+        End Try
+        Return result
+    End Function
+
+    Function WeightY(upperByte As Byte, lowerByte As Byte) As Integer
+        Dim value As Integer = ((CInt(upperByte) << 2) Or (lowerByte >> 6)) And &H3FF
+        Dim scaled As Double = (value / 1023) * DrawBox.Height
+        Console.WriteLine($"Y {value}")
+        Console.WriteLine($"Y {scaled}")
+        Return CInt(scaled)
+    End Function
+
+    Function WeightX(upperByte As Byte, lowerByte As Byte) As Integer
+        Dim value As Integer = ((CInt(upperByte) << 2) Or (lowerByte >> 6)) And &H3FF
+        Dim scaled As Double = (value / 1023) * DrawBox.Width
+        Console.WriteLine($"X {value}")
+        Console.WriteLine($"X {scaled}")
+        Return CInt(scaled)
+    End Function
+
+    Sub Write()
+        Dim data(0) As Byte 'put bytes into array
+        data(0) = &H53
+        SerialPort1.Write(data, 0, 1) 'send bytes as an array, start at index 0,
+    End Sub
+
     Private Sub AboutToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles AboutToolStripMenuItem1.Click, AboutToolStripMenuItem.Click
         Me.Hide()
         AboutForm.Show()
     End Sub
+
+    Private Sub EtchASketch_Load(sender As Object, e As EventArgs) Handles Me.Load
+        NormalRadioButton.Checked = True
+        SerialPort1 = Connect()
+        Timer1.Enabled = True
+        Try
+            SerialPort1.Open()
+        Catch ex As Exception
+
+        End Try
+
+    End Sub
+
+    Private Sub EtchASketch_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+        SerialPort1.Close()
+    End Sub
+
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        Static oldX1, oldY1 As Integer
+        Dim xy As (Integer, Integer)
+        Dim tempList As New List(Of Byte)
+
+        If QRadioButton.Checked Then
+            tempList = Read()
+
+
+            xy = (WeightX(tempList.Item(0), tempList(1)), WeightY(tempList.Item(2), tempList.Item(3)))
+
+
+            If oldX1 = 0 Or oldY1 = 0 Or xy.Item1 = 0 Or xy.Item2 = 0 Then
+
+            Else
+                If Math.Abs(xy.Item1 - oldX1) >= 50 Then
+                    xy.Item1 = oldX1
+                End If
+                If Math.Abs(xy.Item2 - oldY1) >= 50 Then
+                    xy.Item2 = oldY1
+                End If
+                DrawWithPots(oldX1, oldY1, xy.Item1, xy.Item2)
+
+            End If
+
+            oldX1 = xy.Item1
+            oldY1 = xy.Item2
+        End If
+    End Sub
+
 End Class

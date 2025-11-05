@@ -48,6 +48,10 @@ Partial Class EtchASketch
         Me.AboutToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.ColorDialog1 = New System.Windows.Forms.ColorDialog()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.NormalRadioButton = New System.Windows.Forms.RadioButton()
+        Me.QRadioButton = New System.Windows.Forms.RadioButton()
+        Me.SerialPort1 = New System.IO.Ports.SerialPort(Me.components)
+        Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         CType(Me.DrawBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.OptionsMenuStrip.SuspendLayout()
         Me.MenuStrip1.SuspendLayout()
@@ -176,7 +180,7 @@ Partial Class EtchASketch
         Me.MenuStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem1, Me.EditToolStripMenuItem1, Me.HelpToolStripMenuItem1})
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
-        Me.MenuStrip1.Size = New System.Drawing.Size(764, 28)
+        Me.MenuStrip1.Size = New System.Drawing.Size(764, 30)
         Me.MenuStrip1.TabIndex = 5
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -228,8 +232,37 @@ Partial Class EtchASketch
         'AboutToolStripMenuItem1
         '
         Me.AboutToolStripMenuItem1.Name = "AboutToolStripMenuItem1"
-        Me.AboutToolStripMenuItem1.Size = New System.Drawing.Size(224, 26)
+        Me.AboutToolStripMenuItem1.Size = New System.Drawing.Size(133, 26)
         Me.AboutToolStripMenuItem1.Text = "About"
+        '
+        'NormalRadioButton
+        '
+        Me.NormalRadioButton.AutoSize = True
+        Me.NormalRadioButton.Location = New System.Drawing.Point(613, 8)
+        Me.NormalRadioButton.Name = "NormalRadioButton"
+        Me.NormalRadioButton.Size = New System.Drawing.Size(72, 20)
+        Me.NormalRadioButton.TabIndex = 6
+        Me.NormalRadioButton.TabStop = True
+        Me.NormalRadioButton.Text = "Normal"
+        Me.NormalRadioButton.UseVisualStyleBackColor = True
+        '
+        'QRadioButton
+        '
+        Me.QRadioButton.AutoSize = True
+        Me.QRadioButton.Location = New System.Drawing.Point(691, 8)
+        Me.QRadioButton.Name = "QRadioButton"
+        Me.QRadioButton.Size = New System.Drawing.Size(59, 20)
+        Me.QRadioButton.TabIndex = 7
+        Me.QRadioButton.TabStop = True
+        Me.QRadioButton.Text = "Qy@"
+        Me.QRadioButton.UseVisualStyleBackColor = True
+        '
+        'SerialPort1
+        '
+        Me.SerialPort1.PortName = "COM3"
+        '
+        'Timer1
+        '
         '
         'EtchASketch
         '
@@ -238,6 +271,8 @@ Partial Class EtchASketch
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.ExitButton
         Me.ClientSize = New System.Drawing.Size(764, 450)
+        Me.Controls.Add(Me.QRadioButton)
+        Me.Controls.Add(Me.NormalRadioButton)
         Me.Controls.Add(Me.MenuStrip1)
         Me.Controls.Add(Me.DrawBox)
         Me.Controls.Add(Me.ExitButton)
@@ -280,4 +315,8 @@ Partial Class EtchASketch
     Friend WithEvents AboutToolStripMenuItem1 As ToolStripMenuItem
     Friend WithEvents ColorDialog1 As ColorDialog
     Friend WithEvents ToolTip1 As ToolTip
+    Friend WithEvents NormalRadioButton As RadioButton
+    Friend WithEvents QRadioButton As RadioButton
+    Friend WithEvents SerialPort1 As IO.Ports.SerialPort
+    Friend WithEvents Timer1 As Timer
 End Class
